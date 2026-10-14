@@ -1,0 +1,221 @@
+﻿
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101226">
+  <meta name="description" content="DAV+ : une messagerie moderne pour rester connecté.">
+  <title>DAV+ — Messagerie</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div id="toast" class="toast hidden"></div>
+
+  <section id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <div class="brand brand-center">
+        <div class="brand-logo">D<span>+</span></div>
+        <div>
+          <h1>DAV<span>+</span></h1>
+          <p>Connectés autrement.</p>
+        </div>
+      </div>
+
+      <div class="auth-heading">
+        <h2 id="authTitle">Bienvenue sur DAV+</h2>
+        <p id="authDescription">Connecte-toi pour retrouver tes conversations.</p>
+      </div>
+
+      <form id="authForm">
+        <div id="nameField" class="field hidden">
+          <label for="displayName">Ton nom</label>
+          <input id="displayName" type="text" maxlength="60"
+            placeholder="Ex. David" autocomplete="name">
+        </div>
+
+        <div class="field">
+          <label for="email">Adresse e-mail</label>
+          <input id="email" type="email" placeholder="toi@exemple.com"
+            autocomplete="email" required>
+        </div>
+
+        <div class="field">
+          <label for="password">Mot de passe</label>
+          <input id="password" type="password" minlength="6"
+            placeholder="6 caractères minimum" autocomplete="current-password"
+            required>
+        </div>
+
+        <button id="authSubmit" class="primary-btn full-btn" type="submit">
+          Se connecter
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        <span id="switchText">Tu n'as pas encore de compte ?</span>
+        <button id="switchAuth" class="text-btn" type="button">
+          Créer un compte
+        </button>
+      </p>
+
+      <p class="auth-note">
+        En créant un compte, tu acceptes d'utiliser DAV+ de manière responsable.
+      </p>
+    </div>
+  </section>
+
+  <main id="appScreen" class="app-shell hidden">
+    <aside class="sidebar">
+      <header class="sidebar-header">
+        <div class="brand">
+          <div class="brand-logo small-logo">D<span>+</span></div>
+          <div>
+            <h1>DAV<span>+</span></h1>
+            <p class="online-label"><span class="online-dot"></span> Ta messagerie</p>
+          </div>
+        </div>
+        <button id="logoutBtn" class="icon-btn" title="Déconnexion"
+          aria-label="Déconnexion">↗</button>
+      </header>
+
+      <div class="profile-strip">
+        <div id="myAvatar" class="avatar">D</div>
+        <div class="profile-info">
+          <strong id="myName">Utilisateur</strong>
+          <span>Mon compte DAV+</span>
+        </div>
+        <button id="editProfileBtn" class="icon-btn" title="Modifier mon nom"
+          aria-label="Modifier mon nom">✎</button>
+      </div>
+
+      <div class="sidebar-actions">
+        <button id="newChatBtn" class="primary-btn">＋ Nouvelle discussion</button>
+        <button id="newGroupBtn" class="secondary-btn">＋ Créer un groupe</button>
+      </div>
+
+      <div class="search-wrap">
+        <span>⌕</span>
+        <input id="conversationSearch" type="search"
+          placeholder="Rechercher une discussion...">
+      </div>
+
+      <div class="section-heading">
+        <span>MESSAGES</span>
+        <span id="conversationCount" class="count-badge">0</span>
+      </div>
+
+      <div id="conversationList" class="conversation-list">
+        <div class="empty-list">Tes discussions apparaîtront ici.</div>
+      </div>
+
+      <footer class="sidebar-footer">
+        <span class="footer-mark">DAV+</span>
+        <span>Reste proche, où que tu sois.</span>
+      </footer>
+    </aside>
+
+    <section class="chat-panel">
+      <div id="welcomePanel" class="welcome-panel">
+        <div class="welcome-art">
+          <div class="art-orbit orbit-one"></div>
+          <div class="art-orbit orbit-two"></div>
+          <div class="art-core">D<span>+</span></div>
+          <div class="art-bubble bubble-one">✦</div>
+          <div class="art-bubble bubble-two">•••</div>
+        </div>
+        <h2>Bienvenue dans ton espace.</h2>
+        <p>Choisis une discussion ou démarre une nouvelle conversation.</p>
+        <button id="welcomeNewChat" class="primary-btn">Envoyer un message</button>
+      </div>
+
+      <section id="chatView" class="chat-view hidden">
+        <header class="chat-header">
+          <div id="chatAvatar" class="avatar chat-avatar">D</div>
+          <div class="chat-header-info">
+            <h2 id="chatTitle">Discussion</h2>
+            <p id="chatSubtitle">Conversation DAV+</p>
+          </div>
+          <div class="chat-header-tag"><span class="online-dot"></span> DAV+</div>
+        </header>
+
+        <div id="messageList" class="message-list">
+          <div class="empty-list">Aucun message pour le moment.</div>
+        </div>
+
+        <form id="messageForm" class="message-composer">
+          <textarea id="messageInput" rows="1" maxlength="5000"
+            placeholder="Écris ton message..." required></textarea>
+          <button id="sendBtn" class="send-btn" type="submit"
+            aria-label="Envoyer le message" title="Envoyer">➤</button>
+        </form>
+        <p class="composer-note">Entrée pour envoyer · Maj + Entrée pour une nouvelle ligne</p>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="userDialog" class="modal">
+    <form id="userSearchForm" class="modal-content">
+      <div class="modal-heading">
+        <div>
+          <h2>Nouvelle discussion</h2>
+          <p>Recherche un utilisateur DAV+ par son nom.</p>
+        </div>
+        <button class="icon-btn close-dialog" type="button" aria-label="Fermer">✕</button>
+      </div>
+      <div class="search-wrap modal-search">
+        <span>⌕</span>
+        <input id="userSearchInput" type="search"
+          placeholder="Nom de l'utilisateur..." autocomplete="off">
+      </div>
+      <div id="userResults" class="user-results">
+        <p class="muted">Saisis au moins deux caractères.</p>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="groupDialog" class="modal">
+    <form id="groupForm" class="modal-content">
+      <div class="modal-heading">
+        <div>
+          <h2>Nouveau groupe</h2>
+          <p>Donne un nom au groupe et choisis ses membres.</p>
+        </div>
+        <button class="icon-btn close-dialog" type="button" aria-label="Fermer">✕</button>
+      </div>
+      <div class="field">
+        <label for="groupName">Nom du groupe</label>
+        <input id="groupName" maxlength="100" placeholder="Ex. Mes amis" required>
+      </div>
+      <div class="field">
+        <label for="groupSearch">Rechercher les participants</label>
+        <input id="groupSearch" type="search" placeholder="Tape un nom...">
+      </div>
+      <div id="groupUserResults" class="user-results">
+        <p class="muted">Saisis au moins deux caractères.</p>
+      </div>
+      <p id="selectedCount" class="muted">0 participant sélectionné</p>
+      <button class="primary-btn full-btn" type="submit">Créer le groupe</button>
+    </form>
+  </dialog>
+
+  <dialog id="profileDialog" class="modal">
+    <form id="profileForm" class="modal-content">
+      <div class="modal-heading">
+        <div>
+          <h2>Mon profil</h2>
+          <p>Modifie le nom affiché aux autres utilisateurs.</p>
+        </div>
+        <button class="icon-btn close-dialog" type="button" aria-label="Fermer">✕</button>
+      </div>
+      <div class="field">
+        <label for="profileName">Nom d'affichage</label>
+        <input id="profileName" maxlength="60" required>
+      </div>
+      <button class="primary-btn full-btn" type="submit">Enregistrer</button>
+    </form>
+  </dialog>
+</body>
+</html>
